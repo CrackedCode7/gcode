@@ -1,5 +1,6 @@
-# This script is meant to start at a height of zero and in the top right corner of the build plate
+# This script is meant to start at a height of zero and in the bottom left corner of the build plate
 # Be sure to set the welder in the proper initial position ON the build plate to ensure each layer is consistent.
+# Approximate starting point is X7.5 and Y2
 
 printingFeed=15
 x_distance=4
