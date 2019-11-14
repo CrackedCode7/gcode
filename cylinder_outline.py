@@ -1,5 +1,6 @@
-# Make sure that the welder is placed on the base plate at the left center of the build.
+# Make sure that the welder is placed on the base plate at the right center of the build.
 # The code makes an arc from X0 to X4, then back to X0. Therefore be sure there is space in the Y direction.
+# Suggested starting point is X2.5 and Y0
 
 printingFeed=15
 diameter=4
