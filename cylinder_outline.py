@@ -12,7 +12,7 @@ print("G20 G91 F{}".format(printingFeed), file=open('cylinder_outline.tap','w'))
 print("G1 Z{}".format(z_step), file=open('cylinder_outline.tap','a'))
 print("m08", file=open('cylinder_outline.tap','a'))
 print("G90 G02 X{}Y0 R{} F{}".format(diameter,radius,printingFeed), file=open('cylinder_outline.tap','a'))
-print("G90 G02 X0Y0 R{}".format(radius,printingFeed), file=open('cylinder_outline.tap','a'))
+print("G90 G02 X0Y0 R{} F{}".format(radius,printingFeed), file=open('cylinder_outline.tap','a'))
 print("m09", file=open('cylinder_outline.tap','a'))
 print("G91 G1 Z{}".format(z_step), file=open('cylinder_outline.tap','a'))
 
