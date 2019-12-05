@@ -1,7 +1,7 @@
-''' Generates gcode for a solid cube. The raster pattern for this code iteration is a rotating scan of 90 degrees
-    with the scan paths parallel to the edges of the cube. The code is set up so each scan path on the interior of
-    the part is deposited in the same direction, with the laser returning to one side after each track. The interior
-    tracks are printed first, then a contour pass is performed. '''
+''' Generates gcode for a solid cube. The raster pattern for this code iteration is with the scan paths parallel to the 
+    edges of the cube. The code is set up so each scan path on the interior of the part is deposited in the same direction, 
+    with the laser returning to one side after each track. The interior tracks are printed first, then a contour pass is 
+    performed. '''
 
 # Note that the coordinates in this code are based on absolute coordinates, so the welder must be set to X7.5 Y2 approximately
 # and then zeroed to ensure the deposition pattern is correct.
