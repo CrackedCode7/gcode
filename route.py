@@ -2,6 +2,8 @@ import re
 from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 filename=open("cube.STL")
 
@@ -28,3 +30,4 @@ for line in filename:
 fig = plt.figure()
 ax = plt.axes(projection='3d')
 ax.scatter3D(points[0][0], points[0][1], points[0][2], 'gray')
+plt.show
