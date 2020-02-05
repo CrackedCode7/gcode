@@ -10,7 +10,7 @@ root.withdraw()
 file_path = filedialog.askopenfilename()
 root.destroy()
 
-stlmesh = mesh.Mesh.from_file('test.STL')
+stlmesh = mesh.Mesh.from_file(file_path)
 print("there are", len(stlmesh.points), "points in the file")
 
 ''' Plot the STL file if desired '''
