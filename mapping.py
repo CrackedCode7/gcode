@@ -1,8 +1,16 @@
 from stl import mesh
+import json
+import tkinter as tk
+from tkinter import filedialog
 
 plot=False
 
-stlmesh = mesh.Mesh.from_file("cube_solid.STL")
+root = tk.Tk()
+root.withdraw()
+file_path = filedialog.askopenfilename()
+root.destroy()
+
+stlmesh = mesh.Mesh.from_file('test.STL')
 print("there are", len(stlmesh.points), "points in the file")
 
 ''' Plot the STL file if desired '''
@@ -27,6 +35,8 @@ j=0
 for ptset in stlmesh.vectors:
     for pt in ptset:
         pt = list(pt)
+        for i in range(3):
+            pt[i] = float(pt[i])
         for added_point in points:
             if pt == points[added_point]:
                 #print("duplicate")
@@ -58,6 +68,7 @@ for triangle in triangles:
                 break
     i+=1
 
+outdict = {"points":points, "triangles":tridict}
 
-
-print(tridict)
+with open("map.json","w") as write_file:
+    json.dump(outdict, write_file, indent=4)
