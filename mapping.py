@@ -29,9 +29,9 @@ if plot == True:
     pyplot.show()
 
 ''' Remove duplicate points and create dict for them '''
+print('removing duplicate points and creating point dict')
 points = {}
 index=0
-j=0
 for ptset in stlmesh.vectors:
     for pt in ptset:
         pt = list(pt)
@@ -40,23 +40,24 @@ for ptset in stlmesh.vectors:
         for added_point in points:
             if pt == points[added_point]:
                 #print("duplicate")
-                j+=1
                 break
         else:
             points[index] = pt
-            #print("added point",index)
             index+=1
-        #break
+print('done')
 
 ''' Iterate over vectors to make a list of triangles '''
+print('making a list of triangles')
 triangles = []
 for triangle in stlmesh.vectors:
     triangle = list(triangle)
     triangles.append(triangle)
     for i in range(3):
         triangles[-1][i] = list(triangles[-1][i])
+print('done')
 
 ''' Create dictionary to map triangles and corresponding points '''
+print('mapping triangles to points')
 tridict = {}
 i=0
 for triangle in triangles:
@@ -66,9 +67,14 @@ for triangle in triangles:
             if point == points[pt]:
                 tridict[i].append(pt)
                 break
-    i+=1
 
+    i+=1
+print('done')
+
+print('writing out map.json file')
 outdict = {"points":points, "triangles":tridict}
 
 with open("map.json","w") as write_file:
     json.dump(outdict, write_file, indent=4)
+
+print('done writing out file, mapping complete')
