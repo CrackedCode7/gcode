@@ -3,33 +3,37 @@ import matplotlib.pyplot as plt
 from matplotlib import collections as mc
 import pylab as pl
 
+slice_height = 0
+
 with open("map.json", "r") as read_file:
     data = json.load(read_file)
 
 points = data["points"]
 triangles = data["triangles"]
 
-z = []
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''' Works only for the base layer '''
+# Find points that are on the slice plane
+slicepts = []
 for point in points:
-    z.append(points[point][2])
-zmin = min(z)
-print(zmin,'is the minimum z height')
+    if points[point][2] == slice_height:
+        slicepts.append(int(point))
 
-# Find points that are on the base layer
-basepts = []
-for point in points:
-    if points[point][2] == zmin:
-        basepts.append(int(point))
+if len(slicepts) == 0:
+    print('no points lie on the slice plane')
 
-# Check whether a triangle is on the base layer
-checkTriangles = []
+# Check whether a triangle is on the slice plane
+sliceTriangles = []
 for triangle in triangles:
-    if all(item in basepts for item in triangles[triangle]):
-        checkTriangles.append(triangle)
+    if all(item in slicepts for item in triangles[triangle]):
+        sliceTriangles.append(triangle)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
 
 # Add vectors for each triangle
 vectors = {}
-for triangle in checkTriangles:
+for triangle in sliceTriangles:
     vectors[triangle] = []
     for pt1 in triangles[triangle]:
         for pt2 in triangles[triangle]:
@@ -68,9 +72,12 @@ for vector in vectors:
     for pts in vectors[vector]:
         lines.append([(points[str(pts[0])][0],points[str(pts[0])][1]),(points[str(pts[1])][0],points[str(pts[1])][1])])
 
-lc = mc.LineCollection(lines)
-fig, ax = pl.subplots()
-ax.add_collection(lc)
-ax.autoscale()
-ax.margins(0.1)
-plt.show()
+if len(lines) != 0:
+    lc = mc.LineCollection(lines)
+    fig, ax = pl.subplots()
+    ax.add_collection(lc)
+    ax.autoscale()
+    ax.margins(0.1)
+    plt.show()
+else:
+    print('no lines to plot')
