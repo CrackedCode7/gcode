@@ -151,12 +151,12 @@ def map_points_to_segments(segments,points):
 
 def writemap(points,map,layer_height):
     outdict = {"points":points,"segments":map}
-    with open(r"C:\Users\xsocc\OneDrive\Documents\coding\gcode-master\gcode-master\maps\\" + str(layer_height) + ".json","w") as write_file:
+    with open(str(layer_height) + ".json","w") as write_file:
         json.dump(outdict,write_file,indent=4)
     print("done writing out map file")
 
 def plot_layer(layer_height):
-    with open(r"C:\Users\xsocc\OneDrive\Documents\coding\gcode-master\gcode-master\maps\\" + str(layer_height) + ".json","r") as read_file:
+    with open(str(layer_height) + ".json","r") as read_file:
         data = json.load(read_file)
     points = data["points"]
     segments = data["segments"]
@@ -172,14 +172,10 @@ def plot_layer(layer_height):
                     remove.append(segments[segment])
     remove = [list(item) for item in set(tuple(row) for row in remove)]
     remove1 = []
-    print(remove)
     for item in remove:
         if sorted(item) not in remove1:
             remove1.append(sorted(item))
-            print('something')
-        else:
-            print('somehting else')
-    print(remove1)
+
     delete = [key for key in segments if segments[key] in remove1]
     for key in delete: del segments[key]
 
@@ -192,12 +188,13 @@ def plot_layer(layer_height):
     ax.add_collection(lc)
     ax.autoscale()
     ax.margins(0.1)
-    plt.show()
+    plt.savefig(str(layer_height) + '.png')
+    #plt.show()
 
 mesh = get_STL_mesh()
 bounds = get_bounds(mesh)
 
-layers = list([bounds[0]])
+layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,100))
 for layer in layers:
     segments = get_intersect_segments(mesh,layer)
     points = get_unique_points(segments)
