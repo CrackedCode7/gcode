@@ -194,7 +194,7 @@ def plot_layer(layer_height):
 mesh = get_STL_mesh()
 bounds = get_bounds(mesh)
 
-layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,100))
+layers = list(np.linspace(bounds[0] + 1e-10,bounds[1] - 1e-10,1000))
 for layer in layers:
     segments = get_intersect_segments(mesh,layer)
     points = get_unique_points(segments)
