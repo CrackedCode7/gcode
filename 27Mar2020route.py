@@ -1,8 +1,7 @@
 from stl import mesh
+from mpl_toolkits.mplot3d import Axes3D
 import json
 import matplotlib.pyplot as plt 
-from matplotlib import collections as mc
-import pylab as pl
 import tkinter as tk
 from tkinter import filedialog
 import numpy as np
@@ -179,28 +178,29 @@ def plot_layer(layer_number):
     delete = [key for key in segments if segments[key] in remove1]
     for key in delete: del segments[key]
 
-    lines = []
     for segment in segments:
-        lines.append([(points[str(segments[segment][0])][0],points[str(segments[segment][0])][1]),(points[str(segments[segment][1])][0],points[str(segments[segment][1])][1])])
-    print(lines)
-    lc = mc.LineCollection(lines)
-    fig, ax = pl.subplots()
-    ax.add_collection(lc)
-    ax.autoscale()
-    ax.margins(0.1)
-    plt.savefig(str(layer_number) + '.png')
-    plt.close()
+        x = [points[str(segments[segment][0])][0],points[str(segments[segment][1])][0]]
+        y = [points[str(segments[segment][0])][1],points[str(segments[segment][1])][1]]
+        z = [points[str(segments[segment][0])][2],points[str(segments[segment][1])][2]]
+        ax.plot(x, y, z,color='blue') 
 
 mesh = get_STL_mesh()
 bounds = get_bounds(mesh)
 
-layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,1000))
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+
+layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,100))
 layer_number = 1
 for layer in layers:
     segments = get_intersect_segments(mesh,layer)
     points = get_unique_points(segments)
     map1 = map_points_to_segments(segments,points)
     writemap(points,map1,layer_number)
-    print(layer_number)
     plot_layer(layer_number)
     layer_number+=1
+
+ax.autoscale()
+ax.margins(0.1)
+plt.savefig('all.png')
+plt.close()

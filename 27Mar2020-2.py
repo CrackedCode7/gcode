@@ -1,4 +1,6 @@
 from stl import mesh
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import json
 import matplotlib.pyplot as plt 
 from matplotlib import collections as mc
@@ -181,11 +183,12 @@ def plot_layer(layer_number):
 
     lines = []
     for segment in segments:
-        lines.append([(points[str(segments[segment][0])][0],points[str(segments[segment][0])][1]),(points[str(segments[segment][1])][0],points[str(segments[segment][1])][1])])
+        lines.append([(points[str(segments[segment][0])][0],points[str(segments[segment][0])][1],points[str(segments[segment][0])][2]),(points[str(segments[segment][1])][0],points[str(segments[segment][1])][1],points[str(segments[segment][1])][2])])
     print(lines)
-    lc = mc.LineCollection(lines)
-    fig, ax = pl.subplots()
-    ax.add_collection(lc)
+    lc = Line3DCollection(lines)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.add_collection3d(lc)
     ax.autoscale()
     ax.margins(0.1)
     plt.savefig(str(layer_number) + '.png')
@@ -194,13 +197,13 @@ def plot_layer(layer_number):
 mesh = get_STL_mesh()
 bounds = get_bounds(mesh)
 
-layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,1000))
+
+layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,100))
 layer_number = 1
 for layer in layers:
     segments = get_intersect_segments(mesh,layer)
     points = get_unique_points(segments)
     map1 = map_points_to_segments(segments,points)
     writemap(points,map1,layer_number)
-    print(layer_number)
     plot_layer(layer_number)
     layer_number+=1
