@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog
 import numpy as np
 
+# Reads in STL mesh from file
 def get_STL_mesh():
     print("select STL file")
     root = tk.Tk()
@@ -16,6 +17,7 @@ def get_STL_mesh():
     print("there are", len(stlmesh.points), "triangles in the file")
     return stlmesh
 
+# Finds bounds (Z) of STL mesh 
 def get_bounds(mesh):
     z = []
     for triangle in mesh.vectors:
@@ -24,6 +26,7 @@ def get_bounds(mesh):
         z.append(triangle[2][2])
     return min(z),max(z)
 
+# Finds intersect segments of STL triangles with the layer height (slice)
 def get_intersect_segments(mesh, layer_height):
     print('finding segments intersecting the slice')
     segments = []
@@ -53,6 +56,7 @@ def get_intersect_segments(mesh, layer_height):
                 segments.append([list(triangle[0]),list(triangle[2])])
             continue
         
+        # Define a function to find intersection points based on 3D lines
         def find_points(point1,point2,layer_height):
                 t = (layer_height - point1[2]) / (point2[2] - point1[2])
                 x = point1[0] + t*(point2[0] - point1[0])
@@ -117,6 +121,7 @@ def get_intersect_segments(mesh, layer_height):
     print('done finding intersecting segments')
     return segments
 
+# Check all points against each other and find unique points
 def get_unique_points(segments):
     points = {}
     index = 0
@@ -134,6 +139,7 @@ def get_unique_points(segments):
     print('done getting unique points')
     return points
 
+# Map unique points to intersection segments
 def map_points_to_segments(segments,points):
     dictionary={}
     i = 0
@@ -148,59 +154,62 @@ def map_points_to_segments(segments,points):
     print('done mapping')
     return dictionary
 
-def writemap(points,map,layer_number):
-    outdict = {"points":points,"segments":map}
-    with open(str(layer_number) + ".json","w") as write_file:
-        json.dump(outdict,write_file,indent=4)
-    print("done writing out map file")
-
-def plot_layer(layer_number):
-    with open(str(layer_number) + ".json","r") as read_file:
-        data = json.load(read_file)
-    points = data["points"]
-    print(points)
-    segments = data["segments"]
-
-    remove=[]
-    for segment in segments:
-        for segment2 in segments:
-            if segment == segment2:
-                continue
-            else:
-                if set(segments[segment]) == set(segments[segment2]):
-                    print(segments[segment],segments[segment2])
-                    remove.append(segments[segment])
-    remove = [list(item) for item in set(tuple(row) for row in remove)]
-    remove1 = []
-    for item in remove:
-        if sorted(item) not in remove1:
-            remove1.append(sorted(item))
-
-    delete = [key for key in segments if segments[key] in remove1]
-    for key in delete: del segments[key]
+# Plot the intersection segments (one plot at end with all layers) and write out JSON file for each layer
+def plot_layer(points,dictionary,layer_number):
+    outdict = {"points":points,"segments":dictionary}
+    points = outdict["points"]
+    segments = outdict["segments"]
+    print(segments)
+    
+    '''
+    # Perform head to tail check and form polygons
+    polygons = []
+    while len(segments) > 0:
+        polygons.append([])
+        for segment in segments:
+            if len(polygons[-1]) == 0:
+                polygons[-1].append(segments(segment))
+                del segments[segment]
+            while polygons[-1][0] != polygons[-1][-1]:
+                for segment in segments:
+                    if polygons[-1][0] == segments[segment][0] or polygons[-1][1] == segments[segment][1]:
+                        print('found next one, need to switch orientation')
+                        polygons[-1].append(segments[segment])
+                        del segments[segment]
+                    elif polygons[-1][0] == segments[segment][1] or polygons[-1][1] == segments[segment][0]:
+                        print('found next one, correct orientation')
+                        polygons[-1].append(segments[segment])
+                        del segments[segment]
+    '''
 
     for segment in segments:
-        x = [points[str(segments[segment][0])][0],points[str(segments[segment][1])][0]]
-        y = [points[str(segments[segment][0])][1],points[str(segments[segment][1])][1]]
-        z = [points[str(segments[segment][0])][2],points[str(segments[segment][1])][2]]
-        ax.plot(x, y, z,color='blue') 
+        x = [points[segments[segment][0]][0],points[segments[segment][1]][0]]
+        y = [points[segments[segment][0]][1],points[segments[segment][1]][1]]
+        z = [points[segments[segment][0]][2],points[segments[segment][1]][2]]
+        ax.plot(x, y, z, color='blue')
 
+    with open(str(layer_number) + '.json','w') as writeFile:
+        json.dump({"points":points,"segments":segments},writeFile,indent=4)
+
+# Call functions to get required information
 mesh = get_STL_mesh()
 bounds = get_bounds(mesh)
 
+# Create a plot, set the axes to 3D
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,100))
+# Iterate over some number of layers, calling all required functions to plot and write out files
+layers = list(np.linspace(bounds[0] + 1e-6,bounds[1] - 1e-6,10))
 layer_number = 1
 for layer in layers:
     segments = get_intersect_segments(mesh,layer)
     points = get_unique_points(segments)
     map1 = map_points_to_segments(segments,points)
-    writemap(points,map1,layer_number)
-    plot_layer(layer_number)
+    plot_layer(points,map1,layer_number)
     layer_number+=1
 
+# Scale plot axes, save figure of all layers
 ax.autoscale()
 ax.margins(0.1)
 plt.savefig('all.png')
